@@ -3,6 +3,7 @@ const multer = require('multer')       //middleware do Node.js que é usado para
 const xlsx = require('xlsx');
 const dbPromise = require('../db/database.db');
 const router = express.Router();
+const printer = require('printer');
 
 //configurando upload de arquivos
 const upload = multer({ dest: 'upload/'});
@@ -64,7 +65,7 @@ router.get('/', async (req, res) => {
 });
 
 
-//Imprimir Etiquetas e Registrar Checkin
+/*TODO: apagar Imprimir Etiquetas e Registrar Checkin
 router.post('/checkin/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -79,6 +80,54 @@ router.post('/checkin/:id', async (req, res) => {
         res.status(500).json({ error: error.message});
     }
 });
+*/
+
+
+router.get('/imprimir-etiqueta/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const db = await dbPromise;
+  
+      // Buscar dados do participante
+      const [rows] = await db.query(`SELECT * FROM participantes WHERE id = ?`, [id]);
+      if (rows.length === 0) {
+        return res.status(404).json({ error: 'Participante não encontrado' });
+      }
+  
+      const participante = rows[0];
+  
+      // Conteúdo da etiqueta
+      const etiqueta = `
+        Nome: ${participante.nome}
+        Cargo: ${participante.cargo || '---'}
+        Empresa: ${participante.empresa || '---'}
+        Evento: ${participante.evento}
+      `;
+  
+      // Enviar para a impressora
+      printer.printDirect({
+        data: etiqueta,
+        type: 'RAW',
+        success: async () => {
+          // Marcar check-in no banco de dados
+          const horario_checkin = new Date();
+          await db.query(
+            `UPDATE participantes SET checkin = 1, horario_checkin = ? WHERE id = ?`,
+            [horario_checkin, id]
+          );
+          res.json({ message: 'Etiqueta impressa e check-in realizado com sucesso!' });
+        },
+        error: (err) => {
+          console.error(err);
+          res.status(500).json({ error: 'Erro ao imprimir a etiqueta' });
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+
 
 
 //Rota pata importar participantes em excel
