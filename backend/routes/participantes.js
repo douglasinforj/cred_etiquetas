@@ -23,3 +23,28 @@ router.post('/', async(req, res) => {
   }
 });
 
+//Atualizar Participante
+router.put('/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { nome, cargo, empresa, evento, data_evento, horario_evento, checkin } = req.body;
+      const horario_checkin = checkin ? new Date() : null;
+      const db = await dbPromise;
+      const [result] = await db.query(
+        `UPDATE participantes SET 
+          nome = ?, 
+          cargo = ?, 
+          empresa = ?, 
+          evento = ?, 
+          data_evento = ?, 
+          horario_evento = ?, 
+          checkin = ?, 
+          horario_checkin = ? 
+         WHERE id = ?`,
+        [nome, cargo, empresa, evento, data_evento, horario_evento, checkin, horario_checkin, id]
+      );
+      res.json({ updated: result.affectedRows });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
