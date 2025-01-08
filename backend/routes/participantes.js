@@ -80,3 +80,28 @@ router.post('/checkin/:id', async (req, res) => {
     }
 });
 
+
+//Rota pata importar participantes em excel
+
+router.post('/import', upload.single('file'), async (req, res) => {
+    try {
+      const filePath = req.file.path;
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0];
+      const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  
+      const db = await dbPromise;
+      const stmt = `INSERT INTO participantes (nome, cargo, empresa, evento, data_evento, horario_evento) VALUES (?, ?, ?, ?, ?, ?)`;
+  
+      for (const row of data) {
+        const { nome, cargo, empresa, evento, data_evento, horario_evento } = row;
+        await db.query(stmt, [nome, cargo, empresa, evento, data_evento, horario_evento]);
+      }
+  
+      res.json({ message: 'Participantes importados com sucesso!' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+
