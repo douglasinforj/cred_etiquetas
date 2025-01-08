@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> stable
 # Logs
 logs
 *.log
@@ -92,3 +97,7 @@ public
 
 # TernJS port file
 .tern-port
+<<<<<<< HEAD
+=======
+
+>>>>>>> stable
