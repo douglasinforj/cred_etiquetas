@@ -63,3 +63,20 @@ router.get('/', async (req, res) => {
     }
 });
 
+
+//Imprimir Etiquetas e Registrar Checkin
+router.post('/checkin/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = await dbPromise;
+        const horario_checkin = new Date();
+        const [result] = await db.query(
+            `UPDATE participantes SET checkin = 1, horario_checkin = ? WHERE id = ?`,
+            [horario_checkin, id]
+        );
+        res.json({ message: 'Check-in realizado com sucesso!', horario_checkin});
+    } catch (error) {
+        res.status(500).json({ error: error.message});
+    }
+});
+
