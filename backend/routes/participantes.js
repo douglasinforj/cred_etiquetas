@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer')       //middleware do Node.js que é usado para manipular multipart/form-data, sendo a principal função fazer o upload de arquivos
-const xlsx = require('../db/datebase.db');
+const xlsx = require('xlsx');
+const dbPromise = require('../db/database.db');
 const router = express.Router();
 
 //configurando upload de arquivos
@@ -48,3 +49,17 @@ router.put('/:id', async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
+
+//Listando Participantes
+router.get('/', async (req, res) => {
+    try {
+        const db = await dbPromise;
+        const [rows] =  await db.query(
+            `SELECT id, nome, cargo, empresa, evento, data_evento, horario_evento, data_inscricao, checkin, horario_checkin FROM participantes`
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message});
+    }
+});
+
