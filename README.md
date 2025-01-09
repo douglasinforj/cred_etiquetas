@@ -6,6 +6,7 @@ Sistema simples para gerenciar eventos, acesso de cadastros e impressão de etiq
 
 ## Estrutura do Projeto:
 
+```
 project/
 ├── config/
 │   └── db.js       # Configuração e inicialização do banco de dados
@@ -14,3 +15,5 @@ project/
 ├── server.js       # Servidor principal (antigo index.js)
 ├── .env            # Variáveis de ambiente
 ├── package.json    # Configurações do projeto
+
+```
